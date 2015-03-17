@@ -43,20 +43,9 @@ public class Run {
         readTestSet();
         createUserSet();
 
-        BufferedWriter w = new BufferedWriter(new FileWriter(new File("data/output.dat")));
-
         MultilayerPerceptron net = createNet(trainSet);
 
-        for (int i = 0; i < testSet.numInstances(); i++) {
-//            double res = net.classifyInstance(testSet.instance(i));
-//            int clazz = 0;
-//            if(res > 0.47){
-//                clazz = 1;
-//            }
-//            w.write(clazz + "\n");
-        }
-
-        w.close();
+//        classifyTest(net);
 
         Scanner sc = new Scanner(System.in);
         while (true) {
@@ -81,17 +70,44 @@ public class Run {
         }
     }
 
+    /**
+     * Use a multilayer perceptron to classify the test dataset and write it in a file.
+     *
+     * @param net The multilayer perceptron used to classify.
+     */
+    private static void classifyTest(MultilayerPerceptron net) throws Exception {
+        BufferedWriter w = new BufferedWriter(new FileWriter(new File("data/output.dat")));
+        for (int i = 0; i < testSet.numInstances(); i++) {
+            double res = net.classifyInstance(testSet.instance(i));
+            int clazz = 0;
+            if (res > 0.47) {
+                clazz = 1;
+            }
+            w.write(clazz + "\n");
+        }
+        w.close();
+    }
+
+    /**
+     * Create a multilayer perceptron using a dataset to train.
+     *
+     * @param set The dataset used to train the net.
+     * @return The trainned net.
+     */
     private static MultilayerPerceptron createNet(Instances set) throws Exception {
         MultilayerPerceptron net = new MultilayerPerceptron();
 
-//        net.setHiddenLayers("30,30,30");
-//        net.setTrainingTime(150);
-//        net.setLearningRate(0.1d);
+        net.setHiddenLayers("30,30,30");
+        net.setTrainingTime(150);
+        net.setLearningRate(0.1d);
         System.out.println("Building net");
         net.buildClassifier(set);
         return net;
     }
 
+    /**
+     * Read the file used that will be used to test the net.
+     */
     private static void readTestSet() throws IOException {
         System.out.println("Reading test set");
         testSet = new Instances("trainning-set", atts, TEST_SET_SIZE);
@@ -104,6 +120,9 @@ public class Run {
         System.out.println("Done reading test set");
     }
 
+    /**
+     * Create a dataset to use the net.
+     */
     private static void createUserSet() throws IOException {
         System.out.println("Creating use set");
         useSet = new Instances("use-set", atts, 50);
@@ -112,12 +131,20 @@ public class Run {
         System.out.println("Done creating use set");
     }
 
+    /**
+     * Read the trainning dataset.
+     */
     private static void readTrainningSet() throws IOException {
         trainSet = new Instances("trainning-set", atts, TRAIN_SET_SIZE);
         trainSet.setClass(trainSet.attribute(trainSet.numAttributes() - 1));
         Files.lines(Paths.get("data/trainning.csv")).map(Run::line2instance).forEach(trainSet::add);
     }
 
+    /**
+     * Transform a line of the files of trainning and test to a Instance object.
+     * @param line The line to be transformed.
+     * @return A Instance object representing the line.
+     */
     private static Instance line2instance(String line) {
         String[] vals = line.split(",");
         double[] parsedVals = new double[vals.length];

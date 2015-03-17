@@ -43,6 +43,12 @@ public class Validate {
         System.out.println(evaluation.toSummaryString());
     }
 
+    /**
+     * Create a multilayer perceptron using a dataset to train.
+     *
+     * @param set The dataset used to train the net.
+     * @return The trainned net.
+     */
     private static MultilayerPerceptron createNet(Instances set) throws Exception {
         MultilayerPerceptron net = new MultilayerPerceptron();
 
@@ -54,12 +60,20 @@ public class Validate {
         return net;
     }
 
+    /**
+     * Read the trainning dataset.
+     */
     private static void readTrainningSet() throws IOException {
         trainSet = new Instances("trainning-set", atts, TRAIN_SET_SIZE);
         trainSet.setClass(trainSet.attribute(trainSet.numAttributes() - 1));
         Files.lines(Paths.get("data/trainning.csv")).map(Validate::line2instance).forEach(trainSet::add);
     }
 
+    /**
+     * Transform a line of the files of trainning and test to a Instance object.
+     * @param line The line to be transformed.
+     * @return A Instance object representing the line.
+     */
     private static Instance line2instance(String line) {
         String[] vals = line.split(",");
         double[] parsedVals = new double[vals.length];
